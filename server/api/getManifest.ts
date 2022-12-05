@@ -5,7 +5,7 @@ export default defineEventHandler(async (event) => {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
-                'X-API-Key': process.env.BUNGIE_API_KEY,
+                'X-API-Key': process.env.BUNGIE_API_KEY!,
             },
         })
     
