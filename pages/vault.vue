@@ -8,12 +8,13 @@
         <button @click="readData">read Data</button>
 
         <div class="grid grid-cols-4">
+            <!--left slice-->
             <div class="grid grid-cols-1  max-h-screen overflow-scroll">
             
                 <template v-for="item in returnData.allEquipment" :key="item.itemHash">
                     <!--tailwindcss grid for icon and description-->
-                    <div class="grid grid-cols-1">
-                        <div class="grid grid-cols-4 m-1 bg-slate-200">
+                    <div class="grid grid-cols-1" @click="getWeapon(item.itemHash)">
+                        <div class="grid grid-cols-4 m-1 bg-slate-200 hover:bg-slate-400">
                             <div class="grid-cols-1">
                                 <nuxt-img class="w-10 h-10" :src="`https://bungie.net` + item.displayProperties.icon"/>
                             </div>
@@ -27,9 +28,12 @@
 
                 </template>
             </div>
-            <div class="grid col-span-2 grid-rows-2">
-                <p>yes</p>
+            <!--middle slice-->
+            <div class="grid col-span-2">
+                <RollDetails :selectedWeapon="selectedWeapon"/>
             </div>
+
+            <!--right slice-->
             <div class="grid grid-cols-1">
                 <p>yes</p>
             </div>
@@ -45,6 +49,8 @@
     var definitions = {} as any
     var returnData = {} as any
     returnData.allEquipment = {}
+
+    const selectedWeapon = ref({})
     var datae: any
 
     onMounted(() => {
@@ -53,13 +59,30 @@
             window.location.href = "/"
         }
         else {
-            loadPlayerData()
             loadData()
+            loadPlayerData()
         }
     })
     const logout = () => {
         localStorage.removeItem("bungieToken")
         window.location.href = "/"
+    }
+
+    const getWeapon = (weaponHash: any) => {
+        console.log("getting weapon " + weaponHash)
+        returnData.allEquipment[weaponHash].filterableRolls = []
+
+    for (var roll in returnData.allEquipment[weaponHash].rolls) {
+      for (var perk in returnData.allEquipment[weaponHash].rolls[roll].perksData) {
+        if (returnData.allEquipment[weaponHash].filterableRolls.indexOf(returnData.allEquipment[weaponHash].rolls[roll].perksData[perk].plugHash) === -1) {
+            returnData.allEquipment[weaponHash].filterableRolls.push(returnData.allEquipment[weaponHash].rolls[roll].perksData[perk].plugHash)
+        }
+      }
+    }
+
+    //initial filter all
+    returnData.allEquipment[weaponHash].filteredRolls = returnData.allEquipment[weaponHash].rolls
+    selectedWeapon.value = returnData.allEquipment[weaponHash]
     }
 
     const loadPlayerData = async () => {
